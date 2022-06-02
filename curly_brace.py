@@ -43,7 +43,7 @@ List of functions
 import matplotlib.pyplot as plt
 import numpy as np
 
-def getAxSize(fig, ax):
+def getAxSize(ax):
     '''
     .. _getAxSize :
 
@@ -51,9 +51,6 @@ def getAxSize(fig, ax):
 
     Parameters
     ----------
-    fig : matplotlib figure object
-        The of the target axes.
-
     ax : matplotlib axes object
         The target axes.
 
@@ -69,7 +66,7 @@ def getAxSize(fig, ax):
     -----------
     https://stackoverflow.com/questions/19306510/determine-matplotlib-axis-size-in-pixels
     '''
-
+    fig = ax.get_figure()
     bbox = ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
     ax_width, ax_height = bbox.width, bbox.height
     ax_width *= fig.dpi
@@ -77,7 +74,7 @@ def getAxSize(fig, ax):
 
     return ax_width, ax_height
 
-def plot_curly_brace(fig, ax, p1, p2, text='', rad=None, auto_scale=True, line_num=1, fontdict={}, **kwargs):
+def plot_curly_brace(p1, p2, text='', rad=None, auto_scale=True, line_num=1, fontdict={}, ax=None, **kwargs):
     '''
     .. plot_curly_brace :
 
@@ -91,9 +88,6 @@ def plot_curly_brace(fig, ax, p1, p2, text='', rad=None, auto_scale=True, line_n
 
     Parameters
     ----------
-    fig : matplotlib figure object
-        The of the target axes.
-
     ax : matplotlib axes object
         The target axes.
 
@@ -178,10 +172,13 @@ def plot_curly_brace(fig, ax, p1, p2, text='', rad=None, auto_scale=True, line_n
     https://uk.mathworks.com/matlabcentral/fileexchange/38716-curly-brace-annotation
     '''
 
+    if ax is None:
+        ax = plt.gca()
+
     pt1 = [None, None]
     pt2 = [None, None]
 
-    ax_width, ax_height = getAxSize(fig, ax)
+    ax_width, ax_height = getAxSize(ax)
 
     ax_xlim = list(ax.get_xlim())
     ax_ylim = list(ax.get_ylim())
