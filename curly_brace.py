@@ -77,7 +77,7 @@ def getAxSize(fig, ax):
 
     return ax_width, ax_height
 
-def plot_curly_brace(fig, ax, p1, p2, text='', rad=None, auto_scale=True, line_num=2, fontdict={}, **kwargs):
+def plot_curly_brace(fig, ax, p1, p2, text='', rad=None, auto_scale=True, line_num=1, fontdict={}, **kwargs):
     '''
     .. plot_curly_brace :
 
@@ -504,25 +504,36 @@ def plot_curly_brace(fig, ax, p1, p2, text='', rad=None, auto_scale=True, line_n
 
         if (ang >= 0.0) and (ang <= 90.0):
 
-            rotation = ang
-
-            text = text + str_temp
+            if ax_ylim[0] < ax_ylim[1]:
+                rotation = ang
+                text = text + str_temp
+            else:  # inverted y-axis
+                rotation = -ang
+                text = str_temp + text
 
         if (ang > 90.0) and (ang < 270.0):
 
-            rotation = ang + 180.0
-
-            text = str_temp + text
+            if ax_ylim[0] < ax_ylim[1]:
+                rotation = ang + 180.0
+                text = text + text
+            else:
+                rotation = -(ang + 180.0)
+                text = text + str_temp
 
         elif (ang >= 270.0) and (ang <= 360.0):
 
-            rotation = ang
-
-            text = text + str_temp
-
+            if ax_ylim[0] < ax_ylim[1]:
+                rotation = ang
+                text = text + str_temp
+            else:
+                rotation = -ang
+                text = str_temp + text
         else:
 
-            rotation = ang
+            if ax_ylim[0] < ax_ylim[1]:
+                rotation = ang
+            else:
+                rotation = -ang
 
         ax.axes.text(arc2x[-1], arc2y[-1], text, ha='center', va='center', rotation=rotation, fontdict=fontdict)
 
