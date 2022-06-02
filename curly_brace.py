@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*- 
+# -*- coding: utf-8 -*-
 
 '''
 Module Name : curlyBrace
@@ -12,12 +12,12 @@ Last Modified : 2019-04-22
 This module is basically an Python implementation of the function written Pål Næverlid Sævik
 for MATLAB (link in Reference).
 
-The function "curlyBrace" allows you to plot an optionally annotated curly bracket between 
+The function "curlyBrace" allows you to plot an optionally annotated curly bracket between
 two points when using matplotlib.
 
 The usual settings for line and fonts in matplotlib also apply.
 
-The function takes the axes scales into account automatically. But when the axes aspect is 
+The function takes the axes scales into account automatically. But when the axes aspect is
 set to "equal", the auto switch should be turned off.
 
 Change Log
@@ -77,10 +77,9 @@ def getAxSize(fig, ax):
 
     return ax_width, ax_height
 
-def curlyBrace(fig, ax, p1, p2, k_r=0.1, bool_auto=True, str_text='', int_line_num=2, fontdict={}, **kwargs):
-# def curlyBrace(fig, ax, p1, p2, k_r=0.1, bool_auto=True, str_text='', int_line_num=2, fontdict={}, **kwargs):
+def plot_curly_brace(fig, ax, p1, p2, text='', rad=None, auto_scale=True, line_num=2, fontdict={}, **kwargs):
     '''
-    .. _curlyBrace :
+    .. plot_curly_brace :
 
     Plot an optionally annotated curly bracket on the given axes of the given figure.
 
@@ -88,7 +87,7 @@ def curlyBrace(fig, ax, p1, p2, k_r=0.1, bool_auto=True, str_text='', int_line_n
     "p1" and "p2".
 
     Note that, when the axes aspect is not set to "equal", the axes coordinates need to be
-    transformed to screen coordinates, otherwise the arcs may not be seeable. 
+    transformed to screen coordinates, otherwise the arcs may not be seeable.
 
     Parameters
     ----------
@@ -104,12 +103,12 @@ def curlyBrace(fig, ax, p1, p2, k_r=0.1, bool_auto=True, str_text='', int_line_n
     p2 : two element numeric list
         The coordinates of the end point.
 
-    k_r : float
+    rad : float
         This is the gain controlling how "curvy" and "pointy" (height) the bracket is.
 
         Note that, if this gain is too big, the bracket would be very strange.
 
-    bool_auto : boolean
+    auto_scale : boolean
         This is a switch controlling wether to use the auto calculation of axes
         scales.
 
@@ -123,11 +122,11 @@ def curlyBrace(fig, ax, p1, p2, k_r=0.1, bool_auto=True, str_text='', int_line_n
 
         Default = True
 
-    str_text : string
+    text : string
         The annotation text of the bracket. It would displayed at the mid point
         of bracket with the same rotation as the bracket.
 
-        By default, it follows the anti-clockwise convention. To flip it, swap 
+        By default, it follows the anti-clockwise convention. To flip it, swap
         the end point and the starting point.
 
         The appearance of this string can be set by using "fontdict", which follows
@@ -135,7 +134,7 @@ def curlyBrace(fig, ax, p1, p2, k_r=0.1, bool_auto=True, str_text='', int_line_n
 
         Default = empty string (no annotation)
 
-    int_line_num : int
+    line_num : int
         This argument determines how many lines the string annotation is from the summit
         of the bracket.
 
@@ -283,7 +282,7 @@ def curlyBrace(fig, ax, p1, p2, k_r=0.1, bool_auto=True, str_text='', int_line_n
     yscale = ax_height / abs(ax_ylim[1] - ax_ylim[0])
 
     # this is to deal with 'equal' axes aspects
-    if bool_auto:
+    if auto_scale:
 
         pass
 
@@ -292,7 +291,7 @@ def curlyBrace(fig, ax, p1, p2, k_r=0.1, bool_auto=True, str_text='', int_line_n
         xscale = 1.0
         yscale = 1.0
 
-    # convert length to pixels, 
+    # convert length to pixels,
     # need to minus the lower limit to move the points back to the origin. Then add the limits back on end.
     pt1[0] = (pt1[0] - ax_xlim[0]) * xscale
     pt1[1] = (pt1[1] - ax_ylim[0]) * yscale
@@ -303,7 +302,10 @@ def curlyBrace(fig, ax, p1, p2, k_r=0.1, bool_auto=True, str_text='', int_line_n
     theta = np.arctan2(pt2[1] - pt1[1], pt2[0] - pt1[0])
 
     # calculate the radius of the arcs
-    r = np.hypot(pt2[0] - pt1[0], pt2[1] - pt1[1]) * k_r
+    if rad is None:
+        r = np.hypot(pt2[0] - pt1[0], pt2[1] - pt1[1]) * 0.01
+    else:
+        r = rad
 
     # arc1 centre
     x11 = pt1[0] + r * np.cos(theta)
@@ -479,6 +481,8 @@ def curlyBrace(fig, ax, p1, p2, k_r=0.1, bool_auto=True, str_text='', int_line_n
 
     # plot arcs
     ax.plot(arc1x, arc1y, **kwargs)
+    l, = ax.plot(arc1x, arc1y, **kwargs)
+    kwargs["color"] = l.get_color()
     ax.plot(arc2x, arc2y, **kwargs)
     ax.plot(arc3x, arc3y, **kwargs)
     ax.plot(arc4x, arc4y, **kwargs)
@@ -489,12 +493,12 @@ def curlyBrace(fig, ax, p1, p2, k_r=0.1, bool_auto=True, str_text='', int_line_n
 
     summit = [arc2x[-1], arc2y[-1]]
 
-    if str_text:
+    if text:
 
-        int_line_num = int(int_line_num)
+        line_num = int(line_num)
 
-        str_temp = '\n' * int_line_num
-        
+        str_temp = '\n' * line_num
+
         # convert radians to degree and within 0 to 360
         ang = np.degrees(theta) % 360.0
 
@@ -502,25 +506,25 @@ def curlyBrace(fig, ax, p1, p2, k_r=0.1, bool_auto=True, str_text='', int_line_n
 
             rotation = ang
 
-            str_text = str_text + str_temp
+            text = text + str_temp
 
         if (ang > 90.0) and (ang < 270.0):
 
             rotation = ang + 180.0
 
-            str_text = str_temp + str_text
+            text = str_temp + text
 
         elif (ang >= 270.0) and (ang <= 360.0):
 
             rotation = ang
 
-            str_text = str_text + str_temp
+            text = text + str_temp
 
         else:
 
             rotation = ang
 
-        ax.axes.text(arc2x[-1], arc2y[-1], str_text, ha='center', va='center', rotation=rotation, fontdict=fontdict)
+        ax.axes.text(arc2x[-1], arc2y[-1], text, ha='center', va='center', rotation=rotation, fontdict=fontdict)
 
     else:
 
